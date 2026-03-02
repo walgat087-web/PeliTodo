@@ -1,31 +1,46 @@
 # Dockerfile para Next.js 14
 # Construcción multi-etapa optimizada
 
-# Etapa 1: Dependencias
-FROM node:18-alpine AS deps
+# Etapa 1: Builder
+FROM node:18-alpine AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copiar archivos de dependencias
-COPY package.json package-lock.json* ./
-RUN npm ci --only=production && npm cache clean --force
+COPY package*.json ./
 
-# Etapa 2: Builder
-FROM node:18-alpine AS builder
-WORKDIR /app
+# Instalar todas las dependencias (incluyendo devDependencies para build)
+RUN npm ci
 
-# Copiar dependencias desde deps
-COPY --from=deps /app/node_modules ./node_modules
+# Copiar código fuente
 COPY . .
 
 # Variables de entorno para build
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
 
-# Instalar dependencias de desarrollo y construir
-RUN npm ci && npm run build
+# ARGs para variables de build (se pasan desde docker-compose)
+ARG NEXT_PUBLIC_TMDB_API_KEY
+ARG NEXT_PUBLIC_TMDB_BASE_URL
+ARG NEXT_PUBLIC_TMDB_IMAGE_BASE_URL
+ARG NEXT_PUBLIC_TMDB_IMAGE_SIZE_POSTER
+ARG NEXT_PUBLIC_TMDB_IMAGE_SIZE_BACKDROP
+ARG NEXT_PUBLIC_VIDSRC_BASE_URL
+ARG NEXT_PUBLIC_VIDLINK_BASE_URL
 
-# Etapa 3: Runner (Producción)
+# Convertir ARGs a ENVs disponibles durante el build
+ENV NEXT_PUBLIC_TMDB_API_KEY=$NEXT_PUBLIC_TMDB_API_KEY
+ENV NEXT_PUBLIC_TMDB_BASE_URL=$NEXT_PUBLIC_TMDB_BASE_URL
+ENV NEXT_PUBLIC_TMDB_IMAGE_BASE_URL=$NEXT_PUBLIC_TMDB_IMAGE_BASE_URL
+ENV NEXT_PUBLIC_TMDB_IMAGE_SIZE_POSTER=$NEXT_PUBLIC_TMDB_IMAGE_SIZE_POSTER
+ENV NEXT_PUBLIC_TMDB_IMAGE_SIZE_BACKDROP=$NEXT_PUBLIC_TMDB_IMAGE_SIZE_BACKDROP
+ENV NEXT_PUBLIC_VIDSRC_BASE_URL=$NEXT_PUBLIC_VIDSRC_BASE_URL
+ENV NEXT_PUBLIC_VIDLINK_BASE_URL=$NEXT_PUBLIC_VIDLINK_BASE_URL
+
+# Construir aplicación
+RUN npm run build
+
+# Etapa 2: Runner (Producción)
 FROM node:18-alpine AS runner
 WORKDIR /app
 
