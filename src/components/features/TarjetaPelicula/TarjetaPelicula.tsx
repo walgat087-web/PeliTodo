@@ -25,7 +25,7 @@ export const TarjetaPelicula: React.FC<PropsTarjetaPelicula> = ({ pelicula }) =>
       <div className={styles.contenedorImagen}>
         <Image
           src={urlPoster}
-          alt={pelicula.title}
+          alt={titulo}
           fill
           sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           className={styles.imagen}
