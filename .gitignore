@@ -48,5 +48,12 @@ next-env.d.ts
 # OS
 Thumbs.db
 
+# Archivos de configuración del agente
+AGENT_RULES.md
+GUIA_AGENTE.md
+PROJECT_STRUCTURE.md
+REGLAS_OBLIGATORIAS.md
+DOCKER.md
+
 # Local
 .cache/
