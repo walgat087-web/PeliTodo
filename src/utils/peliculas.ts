@@ -1,0 +1,73 @@
+import { 
+  TMDB_IMAGE_BASE_URL, 
+  TMDB_IMAGE_SIZE_POSTER, 
+  TMDB_IMAGE_SIZE_BACKDROP,
+  VIDSRC_BASE_URL,
+  VIDLINK_BASE_URL
+} from '@/constants';
+
+export const construirUrlImagen = (ruta: string | null, tamaño: 'poster' | 'backdrop' = 'poster'): string => {
+  if (!ruta) {
+    return '/images/no-poster.jpg';
+  }
+
+  const tamañoImagen = tamaño === 'poster' ? TMDB_IMAGE_SIZE_POSTER : TMDB_IMAGE_SIZE_BACKDROP;
+  return `${TMDB_IMAGE_BASE_URL}/${tamañoImagen}${ruta}`;
+};
+
+export const construirUrlPoster = (ruta: string | null): string => {
+  return construirUrlImagen(ruta, 'poster');
+};
+
+export const construirUrlFondo = (ruta: string | null): string => {
+  return construirUrlImagen(ruta, 'backdrop');
+};
+
+export const obtenerUrlReproductorVidSrc = (
+  id: number | string,
+  tipo: 'movie' | 'tv' = 'movie'
+): string => {
+  let base = VIDSRC_BASE_URL;
+  // allow custom tv endpoint if necessary
+  if (tipo === 'tv') {
+    base = base.replace('/movie', '/tv');
+  }
+  return `${base}/${id}`;
+};
+
+export const obtenerUrlReproductorVidLink = (
+  id: number | string,
+  tipo: 'movie' | 'tv' = 'movie'
+): string => {
+  let base = VIDLINK_BASE_URL;
+  if (tipo === 'tv') {
+    base = base.replace('/movie', '/tv');
+  }
+  return `${base}/${id}`;
+};
+
+export const formatearDuracion = (minutos?: number): string => {
+  if (!minutos) return 'N/A';
+  
+  const horas = Math.floor(minutos / 60);
+  const mins = minutos % 60;
+  
+  if (horas === 0) return `${mins}m`;
+  return `${horas}h ${mins}m`;
+};
+
+export const formatearCalificacion = (calificacion: number): string => {
+  return calificacion.toFixed(1);
+};
+
+export const formatearFecha = (fecha: string): string => {
+  if (!fecha) return 'N/A';
+  
+  const opciones: Intl.DateTimeFormatOptions = { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  };
+  
+  return new Date(fecha).toLocaleDateString('es-ES', opciones);
+};
